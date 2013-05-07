@@ -1,0 +1,11 @@
+<script type="text/javascript">
+//直接对result进行修改
+result.tree = {};
+$(function (){
+	//对生成的页面进行再处理
+	//表单隐藏，显示
+	var form = $('form[ligeruiid]').ligerFormManager();
+	form.hide('id');
+	form.show('title');
+});
+</script>

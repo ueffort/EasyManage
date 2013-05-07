@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>管理系统</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <script src="<!--{$static}-->js/jquery-1.8.3.min.js" type="text/javascript"></script>
+    <link href="<!--{$static}-->js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
+	<link href="<!--{$static}-->js/ligerUI/skins/Gray/css/all.css" rel="stylesheet" type="text/css" />
+	<script src="<!--{$static}-->js/ligerUI/js/ligerui.all.js" type="text/javascript"></script>
+	<script src="<!--{$static}-->js/EM.js" type="text/javascript"></script>
+<script type="text/javascript">
+if(parent.panelid){
+	var dialog = parent.EM.dialog;
+}else{
+	var panelid = parent.EM.panel.getSelectedTabItemID();
+}
+$(function (){
+	var message = <!--{json_encode($message)}-->;
+	if(panelid){
+		EM.setPanel(parent.EM.panel,panelid);
+	}else{
+		EM.setPanel(parent.EM.panel);
+	}
+	if(dialog){
+		EM.setDialog(dialog);
+	}
+	//弹出层直接关闭
+	EM.ajaxCallBack(message,false,1,function(){
+		EM.view.close();
+	});
+});
+</script>
+</head>
+<body>
+</body>
+</html>
