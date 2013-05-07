@@ -55,6 +55,19 @@ class module_user_login extends module_user{
 		}
 		return $this->user;
 	}
+	//判断用户是否有管理权限
+	public function isManager(){
+		if($this->isManage) return true;
+		if($this->isManage === false) return false;
+		$user = $this->getUser();
+		if($user['is_manage']){
+			$this->isManage = true;
+            return true;
+        }else{
+			$this->isManage = false;
+            return false;
+        }
+	}
 	public function logout(){
 		$this->setSession(true);
 		return true;
