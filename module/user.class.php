@@ -3,7 +3,6 @@
 class module_user implements FN__single{
 	protected static $_Instance = null;
 	protected $user = null;
-	protected $isManage = null;
 	private $list = null;
 	private $relateClass = null;
 	private $className = null;
@@ -81,15 +80,7 @@ class module_user implements FN__single{
 	}
 	//判断用户是否有管理权限
 	public function isManager(){
-		if($this->isManage) return true;
-		if($this->isManage === false) return false;
-		if($this->user['is_manage']){
-			$this->isManage = true;
-            return true;
-        }else{
-			$this->isManage = false;
-            return false;
-        }
+		return $this->user['is_manage'];
 	}
 	//获取所有用户
 	public function getUserList($uid_array,$field='uid'){
