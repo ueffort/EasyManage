@@ -111,7 +111,7 @@ class module_tag implements FN__single{
 class module_tagDB extends FN_layer_sql{
 	//对应的数据库字段
 	protected $_table='tag';
-	protected $_field=array('id','module_name','name','color','description','right','order');
+	protected $_field=array('id','module_name','name','color','description','order');
 	protected $_pkey='id';
 	protected $_aint=true;
 }

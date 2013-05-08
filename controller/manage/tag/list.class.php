@@ -5,14 +5,19 @@ class controller_manage_tag_listhandle extends tools_controller_modulehandle{
 		//登录
 		$user = FN::i('module.user');
 		if(!$user->isLogin()){
-			$this->_message( array('error'=>'nologin'));//前端页面判断，弹出登录框
+			echo json_encode( array('error'=>'nologin'));//前端页面判断，弹出登录框
+			exit;
 		}
-		if(empty($_POST['module_name'])) $this->_message( array('error'=>'noparam'));
+		if(empty($_POST['module_name'])){
+			echo json_encode( array('error'=>'noparam'));
+			exit;
+		}
 		//权限
 		//需要该模块的顶部操作权限
 		$right = FN::i('module.right');
 		if(!$right->isRight($_POST['module_name'],'handle')){
-			$this->_message( array('error'=>'noright'));//前端页面判断，弹出提示框
+			echo json_encode(array('error'=>'noright'));//前端页面判断，弹出提示框
+			exit;
 		}
 	}
 	//目前一条数据只能设置一个标签，主要是出于展示原因无法处理多个标签性质的显示

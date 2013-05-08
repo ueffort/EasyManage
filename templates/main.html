@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>管理系统</title>
+    <title>EasyManage 管理系统</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <script src="<!--{$static}-->js/jquery-1.8.3.min.js" type="text/javascript"></script>
     <link href="<!--{$static}-->js/ligerUI/skins/Aqua/css/ligerui-all.css" rel="stylesheet" type="text/css" />
@@ -77,7 +77,10 @@ $(function (){
 	.l-topmenu-logo{ color:#E7E7E7; padding-left:35px; line-height:26px;background:url('<!--{$static}-->images/topicon.gif') no-repeat 10px 5px;}
 	.l-topmenu-welcome{position:absolute; height:24px; line-height:24px;  right:30px; top:2px;color:#070A0C;}
 	.l-topmenu-welcome a{ color:#E7E7E7; text-decoration:underline}
- </style>
+	h2{padding:20px 0;}
+	h3{padding:5px 0;}
+	p{padding-left:20px;}
+</style>
 </head>
 <body>  
 <div id="pageloading"></div>  
@@ -99,7 +102,21 @@ $(function (){
  
 		<!--{/foreach}-->
 	</div>
-	<div position="center" id="panel"></div>
+	<div position="center" id="panel">
+		<div tabid="readme" title="说明" style="margin:8px;" >
+<h2 style="padding-top:0px;">EasyManage：</h2>
+<p>EasyManage是一款后台管理系统，使用FN的PHP框架和基于jQuery的ligerUI作为前端处理</p>
+<p>EasyManage的github地址：https://github.com/ueffort/EasyManage.git</p>
+<p>FN的github地址：https://github.com/ueffort/fn-php.git</p>
+<h2>相关链接：</h2>
+<p><a href="http://www.ligerui.com/" target="_blank">ligerUI官方</a>、<a href="http://developer.baidu.com/bae" target="_blank">百度云平台</a></p>
+<h2>使用说明：</h2>
+<p>通过左侧的导航，可以查看对于ligerUI的修改，EasyManage的基本功能，FN的使用方式</p>
+<p>目前程序搭建在百度云BAE中，FN框架底层支持BAE云的构架，日后还会继续添加SAE等云环境支持，以方便在多个云中迁移</p>
+<h2>联系我们：</h2>
+<p><a href="http://www.ueffort.com/" target="_blank">博客</a>、<a href="mailto:ueffort@ueffort.com" target="_blank" rel="nofollow">邮箱</a></p>
+		</div>
+	</div>
 </div>
 </body>
 </html>

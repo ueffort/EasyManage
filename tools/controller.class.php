@@ -361,7 +361,8 @@ class tools_controllerview implements FN__single{
 		);
 	}
 	protected function getSearchInfo(){
-		return empty($_POST['search']) ? array() :json_decode(FNbase::clearEscape($_POST['search']),true);
+		//初始化的时候转义了，所以不论系统设置都需要清除转义
+		return empty($_POST['search']) ? array() :json_decode(FNbase::clearEscape($_POST['search'],true),true);
 	}
 	public static function getViewList(){
 		$class = get_called_class();

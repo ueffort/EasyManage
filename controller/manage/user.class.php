@@ -22,21 +22,21 @@ class controller_manage_userview extends tools_controller_manageview{
 				array('name'=>'is_manage','display'=>'管理员','type'=>'select','select'=>$this->_parseSelect(array(1=>'是',0=>'否'))),
 				array('name'=>'status','display'=>'状态','type'=>'select','select'=>$this->_parseSelect(array(1=>'通过',0=>'禁止'))),
 			);
-			$search = $other = array();
-			$search=array('pageSize'=>20);
+			$grid = $other = array();
+			$grid=array('pageSize'=>20);
 
 			$toolbar = array(
 				array('view'=>'manage.user.add','icon'=>'add','window'=>true),
 				array('view'=>'manage.user.edit','icon'=>'modify','param'=>array('uid'),'window'=>true),
 				array('handle'=>'manage.user.delete','icon'=>'delete','param'=>array('uid')),
 			);
-			$this->_toolbar($toolbar,$search);
+			$this->_toolbar($toolbar,$grid);
 
 			$other = array(
 				'dblclick'=>array('param'=>array('uid'),'view'=>'manage.user.edit','window'=>true)
 			);
 			$this->_parseroute($other['dblclick']);
-			return $this->_list($field,$search,$other);
+			return $this->_list($field,$grid,$other);
 		}
 		$pagesize=$page_info['pagesize'];
 		$p=($page_info['page']-1)*$pagesize;
@@ -56,7 +56,8 @@ class controller_manage_userview extends tools_controller_manageview{
 		$role_list=$role_list['Rows'];
 
 		$field = array(
-			array('name'=>'uid','display'=>'UID','type'=>'int'),
+			array('name'=>'username','display'=>'用户名'),
+			array('name'=>'password','display'=>'密码','type'=>'password'),
 			array('name'=>'role','display'=>'角色列表','type'=>'select','options'=>array(
 				'data'=>$role_list,
 				'textField'=>'name',
@@ -86,12 +87,15 @@ class controller_manage_userview extends tools_controller_manageview{
 
 		$data=array(
 			'uid'=>$this->param['uid'],
+			'username'=>$user_info['username'],
 			'role_id'=>$user_info['role_id'],
 			'is_manage'=>$user_info['is_manage'],
 			'status'=>$user_info['status'],
 		);
 		$field = array(
 			array('name'=>'uid','display'=>'UID','type'=>'hidden'),
+			array('name'=>'username','display'=>'用户名'),
+			array('name'=>'password','display'=>'密码','type'=>'password'),
 			array('name'=>'role_id','display'=>'角色列表','type'=>'select','options'=>array(
 				'data'=>$role_list,
 				'textField'=>'name',

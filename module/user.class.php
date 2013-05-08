@@ -144,10 +144,8 @@ class module_user implements FN__single{
 	//用户列表
 	public function getList($array=array(),$search=array()){
 		$result=array();
-		$list=$this->list->where($search)->select($array);
-		$total=$this->list->where($search)->count();
-		$result['list']=$list;
-		$result['total']=$total;
+		$result['list']=$this->list->where($search)->select($array);
+		$result['total']=$this->list->where($search)->count();
 		return $result;
 	}
 
