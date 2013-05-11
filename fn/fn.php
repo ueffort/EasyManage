@@ -1,10 +1,10 @@
 <?php
 //框架路径
-define('FRAME_PATH',realpath(dirname(__FILE__)).'/');
+define('FN_FRAME_PATH',realpath(dirname(__FILE__)).'/');
 //框架类前缀
-define('FRAME_PREFIX','FN');
+define('FN_FRAME_PREFIX','FN');
 //框架所支持的类文件后缀
-define('FRAME_SUFFIX','.class.php');
+define('FN_FRAME_SUFFIX','.class.php');
 if(empty($_SERVER['argc'])){
 	$default_port = array('http'=>80,'https'=>443);
 	if(empty($_SERVER['REQUEST_SCHEME'])){
@@ -12,17 +12,17 @@ if(empty($_SERVER['argc'])){
 		if(empty($_SERVER['REQUEST_SCHEME'])) $_SERVER['REQUEST_SCHEME'] = 'http';
 	}
 	//当前访问的web路径
-	define('WEB_PATH',$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].($default_port[$_SERVER['REQUEST_SCHEME']] == $_SERVER['SERVER_PORT'] ? '':':'.$_SERVER['SERVER_PORT']).FNbase::getBaseUri());
+	define('FN_WEB_PATH',$_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['HTTP_HOST'].($default_port[$_SERVER['REQUEST_SCHEME']] == $_SERVER['SERVER_PORT'] ? '':':'.$_SERVER['SERVER_PORT']).FNbase::getBaseUri());
 }else{
 	//当前为控制器操作
-	define('CONSOLE',true);
+	define('FN_CONSOLE',true);
 }
 //入口文件所在的系统路径
-define('SYSTEM_PATH',dirname($_SERVER['SCRIPT_FILENAME']).'/');
+define('FN_SYSTEM_PATH',dirname($_SERVER['SCRIPT_FILENAME']).'/');
 //用于满足框架自身工具类的正常使用
 FN::setConfig(
 	array(
-		'autoCode'=>'Frame'
+		'autoCode'=>'freedomnature'
 		,'charset'=>'UTF-8'
 	)
 	,'global'
@@ -50,7 +50,7 @@ class FN{
 	 */
 	static public function initProject($path = ''){
 		if(self::$_InitProject) return true;
-		define('PROJECT_PATH',$path ? $path : SYSTEM_PATH);//项目路径
+		define('FN_PROJECT_PATH',$path ? $path : FN_SYSTEM_PATH);//项目路径
 		//初始化云服务
 		$cloud = self::getConfig('cloud');
 		if(isset($cloud['platform'])) self::$_Instance = self::F('cloud.'.$cloud['platform']);
@@ -142,18 +142,18 @@ class FN{
 	}
 	/**
 	 * 项目扩展类调用
-	 * 以项目目录为调用目录结构tools.controller.view  =>  PROJECT_PATH/tools/controller/view  =>  tools_controller_view
+	 * 以项目目录为调用目录结构tools.controller.view  =>  FN_PROJECT_PATH/tools/controller/view  =>  tools_controller_view
 	 */
 	static public function i($class,$array=array()){
 		if(!self::$_InitProject) return true;
-		return self::C(PROJECT_PATH,$class,$array);
+		return self::C(FN_PROJECT_PATH,$class,$array);
 	}
 	/**
 	 * 框架类调用
-	 * 以工具目录为调用目录结构controller.view  =>  FRAME_PATH/controller/view  =>  FN_tools_view
+	 * 以工具目录为调用目录结构controller.view  =>  FN_FRAME_PATH/controller/view  =>  FN_tools_view
 	 */
 	static public function F($class,$array=array()){
-		return self::C(FRAME_PATH,FRAME_PREFIX.'.'.$class,$array,FRAME_PREFIX);
+		return self::C(FN_FRAME_PATH,FN_FRAME_PREFIX.'.'.$class,$array,FN_FRAME_PREFIX);
 	}
 	/**
 	 * 统一类文件调用
@@ -164,7 +164,7 @@ class FN{
 		if(!class_exists($class_name)){
 			return false;
 		}
-		//if(!self::loadFile($fname.FRAME_SUFFIX,$class_path.($domain_path ? substr($path,strlen($domain_path)+1) : $path))) return false;
+		//if(!self::loadFile($fname.FN_FRAME_SUFFIX,$class_path.($domain_path ? substr($path,strlen($domain_path)+1) : $path))) return false;
 		$Reflection = new ReflectionClass($class_name);
 		$interface = $Reflection->getInterfaceNames();
 		if(empty($interface)){
@@ -185,22 +185,22 @@ class FN{
 	 * 框架内不写成子类互相调用，子类只给内部调用
 	 */
 	static public function loadClass($class_name){
-		if(substr($class_name,0,strlen(FRAME_PREFIX)+1) == FRAME_PREFIX.'_'){
-			$path = FRAME_PATH;
-			$file_name = substr($class_name,strlen(FRAME_PREFIX)+1);
+		if(substr($class_name,0,strlen(FN_FRAME_PREFIX)+1) == FN_FRAME_PREFIX.'_'){
+			$path = FN_FRAME_PATH;
+			$file_name = substr($class_name,strlen(FN_FRAME_PREFIX)+1);
 		}else{
-			$path = PROJECT_PATH;
+			$path = FN_PROJECT_PATH;
 			$file_name = $class_name;
 		}
-		$file_name = $path.str_replace('_','/',$file_name).FRAME_SUFFIX;
-		if(!self::loadFile($file_name) && $path == PROJECT_PATH){
+		$file_name = $path.str_replace('_','/',$file_name).FN_FRAME_SUFFIX;
+		if(!self::loadFile($file_name) && $path == FN_PROJECT_PATH){
 			//子类判断,框架内不判断
 			$path = dirname($file_name);
 			if(!is_dir($path)) return false;
 			$dir = dir($path);
 			$success = false;
 			$last_name = self::lastName($class_name);
-			$len = strlen(FRAME_SUFFIX);
+			$len = strlen(FN_FRAME_SUFFIX);
 			//加载所有前部名称相同的类文件
 			//注：单目录中的文件数量，含义相同的文件数量都是性能问题
 			while (($file = $dir->read()) !== false){
@@ -250,7 +250,7 @@ class FN{
 	 * 类文件的子类文件夹的返回
 	 */
 	static public function ChildDir($file){
-		return substr($file,0,-1 * strlen(FRAME_SUFFIX)).'/';
+		return substr($file,0,-1 * strlen(FN_FRAME_SUFFIX)).'/';
 	}
 	static public function loadFile($file,$path = '') {
 		if(!empty($path)) substr($path, -1) != '/' && $path .= "/";
@@ -281,11 +281,11 @@ class FN{
 	static public function parsePath($dir){
 		$Symbol = substr($dir,0,1);
 		switch($Symbol){
-			case '~':return FRAME_PATH.substr($dir,1);//框架路径
+			case '~':return FN_FRAME_PATH.substr($dir,1);//框架路径
 			case '!':return '';//暂留，无用
-			case '@':return WEB_PATH.substr($dir,1);//当前访问的web路径
-			case '#':return SYSTEM_PATH.substr($dir,1);//当前执行脚本所在的路径（可以当项目的访问路径）
-			case '$':return PROJECT_PATH.substr($dir,1);//项目的路径
+			case '@':return FN_WEB_PATH.substr($dir,1);//当前访问的web路径
+			case '#':return FN_SYSTEM_PATH.substr($dir,1);//当前执行脚本所在的路径（可以当项目的访问路径）
+			case '$':return FN_PROJECT_PATH.substr($dir,1);//项目的路径
 			default:return $dir;
 		}
 	}

@@ -16,14 +16,14 @@ class FN_layer_controller_view implements FN__single{
 	}
 	private function __construct($array){
 		$this->template = FN::server('template',$this->_link);
-		if(defined('WEB_PATH')){
+		if(defined('FN_WEB_PATH')){
 			//如果是web访问，传递路径变量
-			$this->template->assign('url',WEB_PATH);
+			$this->template->assign('url',FN_WEB_PATH);
 			if($this->dir){
 				$this->template->assign('dir',$this->dir);
-				$this->template->assign('static',WEB_PATH.'static/'.$this->dir);
+				$this->template->assign('static',FN_WEB_PATH.'static/'.$this->dir);
 			}else{
-				$this->template->assign('static',WEB_PATH.'static/');
+				$this->template->assign('static',FN_WEB_PATH.'static/');
 			}
 		}
 		
@@ -31,7 +31,7 @@ class FN_layer_controller_view implements FN__single{
 		$this->param = empty($array['param']) ? array() : $array['param'];
 		$this->default = $array;
 		$this->_init();
-		$this->_view(empty($array['view']) ? '' : $array['view']);
+		$this->_view(empty($this->default['view']) ? '' : $this->default['view']);
 	}
 	//供继承类扩展，用于初始化该控制器
 	protected function _init(){
@@ -47,11 +47,11 @@ class FN_layer_controller_view implements FN__single{
 		if(method_exists($this,$view)){
 			$result = $this->$view();
 		}
-		if($this->tplfile && file_exists(PROJECT_PATH."templates/".$this->tplfile.'.html')){
+		if($this->tplfile && file_exists(FN_PROJECT_PATH."templates/".$this->tplfile.'.html')){
 			if($this->ajax){
 			
 			}else{
-				$this->template->display(PROJECT_PATH."templates/".$this->tplfile.'.html');
+				$this->template->display(FN_PROJECT_PATH."templates/".$this->tplfile.'.html');
 			}
 		}elseif($this->ajax){
 			echo json_encode($result);

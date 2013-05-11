@@ -22,10 +22,10 @@ class tools_controllerview implements FN__single{
 		$this->classname = $class;
 		$this->controllname = call_user_func_array(array($this->classname,'getControllName'),array());
 		$this->template = FN::server('template',$this->_link);
-		if(defined('WEB_PATH')){
+		if(defined('FN_WEB_PATH')){
 			//如果是web访问，传递路径变量
 			$web_path = FN::getConfig('global/web_path');
-			if(!$web_path) $web_path = WEB_PATH;
+			if(!$web_path) $web_path = FN_WEB_PATH;
 			$this->template->assign('url',$web_path);
 			$this->template->assign('static',$web_path.'static/');
 		}
@@ -72,7 +72,7 @@ class tools_controllerview implements FN__single{
 			$op = $this->controllname.'.'.$view;
 			$url = $op.'.view';
 			$file = str_replace('.','/',$op).'.html';
-			if(file_exists(PROJECT_PATH."templates/".$file)){
+			if(file_exists(FN_PROJECT_PATH."templates/".$file)){
 				$this->template->assign('view',$file);
 			}else{
 				$this->template->assign('view',false);
@@ -94,7 +94,7 @@ class tools_controllerview implements FN__single{
 		$this->_show('message');
 	}
 	protected function _show($template){
-		$this->template->display(PROJECT_PATH."templates/".$template.".html");
+		$this->template->display(FN_PROJECT_PATH."templates/".$template.".html");
 		exit;
 	}
 	protected function _filefield(&$element,$file=array()){
