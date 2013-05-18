@@ -7,6 +7,7 @@ class tools_controllerview implements FN__single{
 	protected static $viewList = array();//视图列表
 	protected $tagStatus = false;//模块的TAG功能是否开启
 	protected $tagField = '__TAG__';//如果与实际字段冲突，可以在子类中重置该设置
+	protected $tagList = array();//允许开启tag操作的view列表
 	protected $param = array();
 	protected $action = null;
 	protected $ajax = false;
@@ -156,7 +157,7 @@ class tools_controllerview implements FN__single{
 	protected function _list($field,$grid=array(),$list=array()){
 		$grid['columns'] = $field;
 		$grid['columnWidth'] = '120';
-		if($this->tagStatus){
+		if($this->tagStatus && in_array($this->action,$this->tagList)){
 			$tag = FN::i('module.tag');
 			$tag_list = $tag->getList(array(),array('module_name'=>$this->controllname));
 			$tag_list = $tag_list['list'];
@@ -238,7 +239,7 @@ class tools_controllerview implements FN__single{
 			$form = array();
 			$form['handle'] = $url;
 		}
-		if($this->tagStatus && !empty($data[$this->tagStatus])){
+		if($this->tagStatus && in_array($this->action,$this->tagList) && !empty($data[$this->tagStatus])){
 			$tag = FN::i('module.tag');
 			$tag_list = $tag->getList(array(),array('module_name'=>$this->controllname));
 			$tag_list = $tag_list['list'];
