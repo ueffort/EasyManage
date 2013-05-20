@@ -1,6 +1,6 @@
 <?php
 //框架路径
-define('FN_FRAME_PATH',realpath(dirname(__FILE__)).'/');
+define('FN_FRAME_PATH',dirname(__FILE__).'/');
 //框架类前缀
 define('FN_FRAME_PREFIX','FN');
 //框架所支持的类文件后缀
