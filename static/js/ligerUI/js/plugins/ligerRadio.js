@@ -64,9 +64,9 @@
         _render: function ()
         {
             var g = this, p = this.options;
+			g.input = $(this.element);
+			g.wrapper = g.input.addClass('l-hidden').wrap('<div class="l-radio-wrapper"></div>').parent();
 			if(p.data){
-				g.input = $(this.element);
-				g.wrapper = g.input.addClass('l-hidden').wrap('<div class="l-radio-wrapper"></div>').parent();
 				g.setData(p.data);
 				g.set(p);
 			}
@@ -81,6 +81,7 @@
 			var g = this,p = this.options;
 			if (!data || !data.length) return;
             if (g.data != data) g.data = data;
+			$('label',g.wrapper).remove();
             for (var i = 0; i < data.length; i++)
             {
                 var val = data[i][p.valueField];
@@ -133,6 +134,7 @@
             }
             else if (g.input.val() != "")
             {
+				value = g.input.val();
                 g.setValue(value);
             }
         },

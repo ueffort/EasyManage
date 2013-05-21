@@ -13,11 +13,11 @@ $action = htmlspecialchars( $_POST[ "action" ] );
 $id = $_POST[ "id" ];
 $domain = $_POST[ "domain" ];
 if($action=='get' && !empty($id) && !empty($domain)){
-	require_once('xg.php');
-	$fileserver = XG::DB('file');
+	require_once('fn/fn.php');
+	$fileserver = FN::i('file');
 	$array = $fileserver->select($domain,$id);
 	foreach($array as $file){
-		echo $fileserver->getUrl().$file->file['filename'];
+		echo $fileserver->getUrl().$file->file['filename']. "ue_separate_ue";
 	}
 }
 	/*

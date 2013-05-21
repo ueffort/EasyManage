@@ -367,6 +367,7 @@
 			if(!buttons.length) var buttons = [buttons];
 			var out = [];
 			for(var i in buttons){
+				if(!buttons[i].text) continue;
 				var button = $('<div class="btn"></div>');
 				button.ligerButton(buttons[i]);
 				out.push(button);

@@ -60,9 +60,9 @@
         _render: function ()
         {
 			var g = this, p = this.options;
+			g.input = $(this.element);
+			g.wrapper = g.input.addClass('l-hidden').wrap('<div class="l-checkbox-wrapper"></div>').parent();
 			if(p.data){
-				g.input = $(this.element);
-				g.wrapper = g.input.addClass('l-hidden').wrap('<div class="l-checkbox-wrapper"></div>').parent();
 				g.setData(p.data);
 				g.set(p);
 			}
@@ -77,11 +77,12 @@
 			var g = this,p = this.options;
 			if (!data || !data.length) return;
             if (g.data != data) g.data = data;
+			$('label',g.wrapper).remove();
             for (var i = 0; i < data.length; i++)
             {
                 var val = data[i][p.valueField];
                 var txt = data[i][p.textField];
-				var checkbox = $("<label value='"+val+"'><a value='"+val+"' text='"+txt+" 'class='l-checkbox'/>"+(p.render ? p.render(val,txt) : txt)+"</label>"+(p.newline ? "<br />":""));
+				var checkbox = $("<label value='"+val+"'><a value='"+val+"' text='"+txt+"' class='l-checkbox'/>"+(p.render ? p.render(val,txt) : txt)+"</label>"+(p.newline ? "<br />":""));
                 g.wrapper.append(checkbox);
             }
 			$("label",g.wrapper).click(function(){
@@ -125,6 +126,7 @@
             }
             else if (g.input.val() != "")
             {
+				value = g.input.val();
                 g.setValue(value);
             }
         },
