@@ -7,7 +7,7 @@
 .l-form .l-group-hasicon div{ width:16px; height:16px; position:absolute; left:6px; top:6px;}
 .l-form ul, .l-form li{ list-style:none;}
 .l-form ul{ clear:both;}
-.l-form li{ float:left; overflow:hidden; text-align:left;  line-height:23px;padding:0; padding-top:2px; padding-bottom:2px;}
+.l-form li{ float:left; text-align:left;  line-height:23px;padding:0; padding-top:2px; padding-bottom:2px;}
 .l-form li .l-form-container{float:left;}
 
 .l-form-buttons{}
