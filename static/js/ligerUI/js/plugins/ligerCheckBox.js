@@ -52,7 +52,7 @@
         {
             $.ligerui.controls.CheckBox.base._init.call(this);
             var p = this.options;
-            if ($(this.input).attr("disabled"))
+            if ($(this.element).attr("disabled"))
             {
                 p.disabled = true;
             }
@@ -62,6 +62,9 @@
 			var g = this, p = this.options;
 			g.input = $(this.element);
 			g.wrapper = g.input.addClass('l-hidden').wrap('<div class="l-checkbox-wrapper"></div>').parent();
+			if(!p.data && g.input.attr('type') == 'checkbox'){
+				p.data = [{id:g.input.attr('value'),text:''}];
+			}
 			if(p.data){
 				g.setData(p.data);
 				g.set(p);
@@ -199,7 +202,7 @@
         },
         getValue: function ()
         {
-            return $(this.input).val();
+            return this.input.val();
         },
         _setDisabled: function ()
         {
@@ -225,23 +228,28 @@
 				value.push($(this).attr('value'));
 			});
 			value = value.join(this.options.split);
-			var text = this.findTextByValue(value);
-			$(this.input).val(value);
+			if(this.input.attr('type')=='checkbox'){
+				this.input.attr("checked", value ? true : false);
+			}else{
+				var text = this.findTextByValue(value);
+				this.input.val(value);
+			}
+			this.input.trigger('change');
 			this.trigger('selected', [value, text]);
 			this.trigger('validate', [value]);
 		},
         updateStyle: function ()
         {
 			var g = this,p = this.options;
-            if ($(this.input).attr("disabled"))
+            if (this.input.attr("disabled"))
             {
 				$(".l-checkbox", g.wrapper).attr('disabled', true);
                 this.wrapper.addClass("l-disabled");
                 this.options.disabled = true;
             }
-            if ($(this.input).val())
+            if (this.input.val())
             {
-				var targetdata = $(this.input).val().split(p.split);
+				var targetdata = this.input.val().split(p.split);
                 $(".l-checkbox", g.wrapper).each(function (){
 					if($.inArray($(this).attr('value'),targetdata) >= 0){
 						$(this).addClass("l-checkbox-checked");
