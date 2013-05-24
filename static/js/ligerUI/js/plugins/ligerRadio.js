@@ -198,7 +198,7 @@
         {
             var g = this, p = this.options;
             $(".l-radio", g.wrapper).each(function (){
-				if($(this).attr('value') == value.toString()){
+				if(value && $(this).attr('value') == value.toString()){
 					$(this).addClass("l-radio-checked");
 				}else{
 					$(this).removeClass("l-radio-checked");

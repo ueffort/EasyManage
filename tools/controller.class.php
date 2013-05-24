@@ -59,7 +59,7 @@ class tools_controllerview implements FN__single{
 			$param = call_user_func_array(array($this->classname,'getViewAttr'),array($view,'param'));
 			if(!empty($param) && is_array($param)){
 				foreach($param as $value){
-					if(empty($this->param[$value])) $this->_message(array('error'=>'noparam'));
+					if(!isset($this->param[$value])) $this->_message(array('error'=>'noparam'));
 				}
 			}
 			$result = $this->$view();
@@ -444,7 +444,7 @@ class tools_controllerhandle implements FN__single{
 				$param = call_user_func_array(array($this->classname,'getHandleAttr'),array($handle,'param'));
 				if(!empty($param) && is_array($param)){
 					foreach($param as $value){
-						if(empty($_POST[$value])) $result = array('error'=>'noparam');
+						if(!isset($_POST[$value])) $result = array('error'=>'noparam');
 					}
 				}
 			}

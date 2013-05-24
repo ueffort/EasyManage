@@ -53,7 +53,7 @@
             var g = this;
             $(items).each(function (i, item)
             {
-                g.addItem(item);
+                if(item) g.addItem(item);
             });
         },
 		removeItem: function (itemid)

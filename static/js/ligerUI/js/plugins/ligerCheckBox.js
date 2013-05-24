@@ -190,7 +190,7 @@
         setValue: function (value)
         {
             var g = this, p = this.options;
-            var targetdata = value.toString().split(p.split);
+            var targetdata = value ? value.toString().split(p.split) : [];
 			$(".l-checkbox", g.wrapper).each(function (){
 				if($.inArray($(this).attr('value'),targetdata) >= 0){
 					$(this).addClass("l-checkbox-checked");

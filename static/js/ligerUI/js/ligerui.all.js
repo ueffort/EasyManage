@@ -1361,7 +1361,7 @@
         setValue: function (value)
         {
             var g = this, p = this.options;
-            var targetdata = value.toString().split(p.split);
+            var targetdata = value ? value.toString().split(p.split) : [];
 			$(".l-checkbox", g.wrapper).each(function (){
 				if($.inArray($(this).attr('value'),targetdata) >= 0){
 					$(this).addClass("l-checkbox-checked");
@@ -12267,7 +12267,7 @@
         {
             var g = this, p = this.options;
             $(".l-radio", g.wrapper).each(function (){
-				if($(this).attr('value') == value.toString()){
+				if(value && $(this).attr('value') == value.toString()){
 					$(this).addClass("l-radio-checked");
 				}else{
 					$(this).removeClass("l-radio-checked");
@@ -14307,7 +14307,7 @@
             var g = this;
             $(items).each(function (i, item)
             {
-                g.addItem(item);
+                if(item) g.addItem(item);
             });
         },
 		removeItem: function (itemid)
