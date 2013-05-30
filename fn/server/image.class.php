@@ -122,7 +122,8 @@ class FN_server_image{
 	/*
 	 * 添加水印
 	 */
-	static public function water($source_file,$target_file,$water,$pos=0,$pct=80){
+	static public function water($source_file,$target_file,$water,$pos=0,$pct=30,$quality=80){
+		$ispng = false;
 		// 加载水印图片
 		$info = self::getImageInfo($water);
 		if(!empty($info[0])){
@@ -131,6 +132,7 @@ class FN_server_image{
 			$type = $info['type'];
 			$fun  = 'imagecreatefrom'.$type;
 			$waterimg = $fun($water);
+			if($type=='png') $ispng = true;
 		} else{
 			return false;
 		}
@@ -152,57 +154,68 @@ class FN_server_image{
 
 		// 水印位置
 		switch($pos){
-		case 0://随机
-			$posX = rand(0,($old_w - $water_w));
-			$posY = rand(0,($old_h - $water_h));
-			break;
-		case 1://1为顶端居左
-			$posX = 0;
-			$posY = 0;
-			break;
-		case 2://2为顶端居中
-			$posX = ($old_w - $water_w) / 2;
-			$posY = 0;
-			break;
-		case 3://3为顶端居右
-			$posX = $old_w - $water_w;
-			$posY = 0;
-			break;
-		case 4://4为中部居左
-			$posX = 0;
-			$posY = ($old_h - $water_h) / 2;
-			break;
-		case 5://5为中部居中
-			$posX = ($old_w - $water_w) / 2;
-			$posY = ($old_h - $water_h) / 2;
-			break;
-		case 6://6为中部居右
-			$posX = $old_w - $water_w;
-			$posY = ($old_h - $water_h) / 2;
-			break;
-		case 7://7为底端居左
-			$posX = 0;
-			$posY = $old_h - $water_h;
-			break;
-		case 8://8为底端居中
-			$posX = ($old_w - $water_w) / 2;
-			$posY = $old_h - $water_h;
-			break;
-		case 9://9为底端居右
-			$posX = $old_w - $water_w;
-			$posY = $old_h - $water_h;
-			break;
-		default: //随机
-			$posX = rand(0,($old_w - $water_w));
-			$posY = rand(0,($old_h - $water_h));
-			break;
+			case 0://随机
+				$posX = rand(0,($old_w - $water_w));
+				$posY = rand(0,($old_h - $water_h));
+				break;
+			case 1://1为顶端居左
+				$posX = 0;
+				$posY = 0;
+				break;
+			case 2://2为顶端居中
+				$posX = ($old_w - $water_w) / 2;
+				$posY = 0;
+				break;
+			case 3://3为顶端居右
+				$posX = $old_w - $water_w;
+				$posY = 0;
+				break;
+			case 4://4为中部居左
+				$posX = 0;
+				$posY = ($old_h - $water_h) / 2;
+				break;
+			case 5://5为中部居中
+				$posX = ($old_w - $water_w) / 2;
+				$posY = ($old_h - $water_h) / 2;
+				break;
+			case 6://6为中部居右
+				$posX = $old_w - $water_w;
+				$posY = ($old_h - $water_h) / 2;
+				break;
+			case 7://7为底端居左
+				$posX = 0;
+				$posY = $old_h - $water_h;
+				break;
+			case 8://8为底端居中
+				$posX = ($old_w - $water_w) / 2;
+				$posY = $old_h - $water_h;
+				break;
+			case 9://9为底端居右
+				$posX = $old_w - $water_w;
+				$posY = $old_h - $water_h;
+				break;
+			default: //随机
+				$posX = rand(0,($old_w - $water_w));
+				$posY = rand(0,($old_h - $water_h));
+				break;
 		}
-		// 设定图像的混色模式
-		imagealphablending($source_file, true);
-		// 添加水印
-		imagecopymerge($source_file, $waterimg, $posX, $posY, 0, 0, $water_w,$water_h,$pct);
+		if($ispng) {
+			$watermark_photo = imagecreatetruecolor($old_w, $old_h);
+			imageCopy($watermark_photo, $source_file, 0, 0, 0, 0, $old_w, $old_h);
+			imageCopy($watermark_photo, $waterimg, $posX, $posY, 0, 0, $water_w, $water_h);
+			$source_file = $watermark_photo;
+		} else {
+			// 设定图像的混色模式
+			imagealphablending($source_file, true);
+			// 添加水印
+			imagecopymerge($source_file, $waterimg, $posX, $posY, 0, 0, $water_w,$water_h,$pct);
+		}
 		$fun = 'image'.$type;
-		$fun($source_file, $target_file);
+		if($fun == 'imagejpeg'){
+			imagejpeg($source_file,$target_file,$quality);
+		}else{
+			$fun($source_file, $target_file);
+		}
 		imagedestroy($source_file);
 		imagedestroy($waterimg);
 		if(!file_exists($target_file)) return '';
