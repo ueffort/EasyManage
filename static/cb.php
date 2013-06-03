@@ -33,8 +33,7 @@ $header = array(
     'jpg' => 'Content-Type: image/jpg',
     'gif' => 'Content-Type: image/gif',    
     'png' => 'Content-Type: image/png',
-    'jpeg' => 'Content-Type: image/jpeg',
-    'swf' => 'Content-Type: application/x-shockwave-flash'
+    'jpeg' => 'Content-Type: image/jpeg'
 );
  
 // 线上未找到的文件
@@ -62,20 +61,19 @@ $R_files = array();
 $prefix = realpath(dirname(__FILE__)).'/';
 
 // 处理请求中附带的文件列表，得到原始数据
-$pos = strpos("??",$_SERVER['REQUEST_URI']);
+$pos = strpos($_SERVER['REQUEST_URI'],"??");
 if($pos!==false){
 	$file_string = substr($_SERVER['REQUEST_URI'],$pos+2);
-	$_tmp = explode(',',$split_a[1]);
+	$_tmp = explode(',',$file_string);
 	foreach($_tmp as $v){
 		$files[] = $prefix.$v;
 	}
 }
- 
 // 得到需要读取的文件列表
 foreach ($files as $k){
 	//将开头的/和?去掉,和上级目录
 	$k = preg_replace(
-		array('/^\//','/\?.+$/','\.\.\/'),
+		array('/^\//','/\?.+$/','/\.\.\//'),
 		array('','',''),
 	$k);
 		
@@ -137,7 +135,9 @@ header($header[$type]);
 $result = join("\n",$R_files);
 //输出文件
 echo $result;
+if(!empty($unfound)){
 echo "/* non published files:\n";
 echo join("\n",$unfound);
 echo "\n*/";
+}
 ?>

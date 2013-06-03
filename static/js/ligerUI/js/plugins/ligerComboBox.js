@@ -804,6 +804,8 @@
                 $(valuelist).each(function (i, item)
                 {
                     g.treeManager.selectNode(item.toString());
+					var itemtext = g.treeManager.getTextByID(item);
+					if(itemtext == null || typeof(itemtext) == 'undefined') return ;
                     text += g.treeManager.getTextByID(item);
                     if (i < valuelist.length - 1) text += p.split;
                 });
