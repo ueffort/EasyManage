@@ -377,7 +377,7 @@ class FNbase{
 		return strtolower(self::getHead('X_REQUESTED_WITH')) == 'xmlhttprequest';
 	}
 	static public function isPJAX(){
-		return strtolower(self::getHead('X_REQUESTED_WITH')) == 'pjax';
+		return strtolower(self::getHead('X-PJAX')) ? true : false;
 	}
 	static public function setPath($path){
 		if(empty($path)) return false;
