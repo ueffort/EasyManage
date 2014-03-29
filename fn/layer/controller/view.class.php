@@ -3,14 +3,13 @@
 //会自动加载项目目录下的templates目录
 //自动通过view参数执行方法并输出页面
 class FN_layer_controller_view implements FN__single{
-	static private $_Instance = null;
 	protected $template = null;
 	protected $tplfile = null;
 	protected $_link = 'default';//设定模版工具
 	protected $param = array();//参数变量
 	protected $default = array();//全局变量
 	protected $dir = '';//分割目录
-	static public function getInstance($array=array()){
+	static public function getInstance($array){
 		$class = get_called_class();
 		return new $class($array);
 	}

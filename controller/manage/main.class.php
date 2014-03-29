@@ -29,7 +29,7 @@ class controller_manage_mainview extends tools_controller_manageview{
 					array('name'=>'角色列表','url'=>'manage.right.role'),
 					array('name'=>'导航列表','url'=>'manage.nav.index'),
 				)),
-				array('name'=>'标签管理','url'=>'manage.tag.index'),
+				array('name'=>'标签管理','url'=>'manage.tag.list.index'),
 				array('name'=>'日志管理','url'=>'manage.log.index'),
 				array('name'=>'模块转移','url'=>'manage.devolve.index')
 			));

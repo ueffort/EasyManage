@@ -3,7 +3,7 @@
  * 接口代理端，可以用于测试或其他使用
 */
 class FN_layer_api_restcache_proxy extends FN_layer_api_restcache_client{
-	static function getInstance($array=array()){
+	static function getInstance($array){
 		return new self();
 	}
 	public function setProxy($proxy){

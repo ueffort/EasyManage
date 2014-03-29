@@ -57,9 +57,9 @@ class FN_server_database_mysql{
 	}
 	
 	function query($sql, $type = '') {
-		$func = $type == 'UNBUFFERED' && @function_exists('mysql_unbuffered_query') ?
-			'mysql_unbuffered_query' : 'mysql_query';
-		if(!($query = $func($sql, $this->link))) {
+		$func = ($type == 'UNBUFFERED' && @function_exists('mysql_unbuffered_query')) ? 'mysql_unbuffered_query' : 'mysql_query';
+		$query = call_user_func_array($func,array($sql, $this->link));
+		if(!$query){
 			if(in_array($this->errno(), array(2006, 2013)) && substr($type, 0, 5) != 'RETRY') {
 				$this->close();
 			} elseif($type != 'SILENT' && substr($type, 5) != 'SILENT') {
@@ -124,8 +124,10 @@ class FN_server_database_mysql{
 	}
 	function halt($message = '', $sql = '') {
 		//@file_put_contents(FRAME_DATA.'sql.log','[MYSQL]['.$this->errno().']'.date('Y-m-d H:m:i').':'.$this->error().' '.$sql."\r\n",FILE_APPEND);
-		if(!FN::getConfig('debug/sql')) $sql = '';
-		echo $message.'<br />'.$sql;
+		echo $message;
+		if(FN::getConfig('debug/sql')){
+			echo '['.$this->errno().']'.date('Y-m-d H:m:i').':'.$this->error().' '.$sql;
+		}
 	}
 	function getFirst($sql) {
 		return $this->fetch_array($this->query($sql));

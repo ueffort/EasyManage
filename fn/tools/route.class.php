@@ -8,7 +8,7 @@
 		'class'=>'',//项目的类文件字符串
 		'priority'=>1,//路由的优先级,默认为1
 		'extend'=>array(
-			'c1'=>array('rule','function')
+			'c1'=>array('rule','function',array())
 		)
 		'default'=>array(),//默认值
 	);
@@ -20,7 +20,7 @@ class FN_tools_route implements FN__single{
 	private $HOST = false;
 	private $RouteArray = array();
 	private $RouteList = array();
-	static public function getInstance($array = array()){
+	static public function getInstance($array){
 		if(!self::$_Instance){
 			self::$_Instance = new self();
 		}
@@ -85,6 +85,7 @@ class FN_tools_route implements FN__single{
 	public function parseRoute($string){
 		if($this->DEBUG) var_dump($string);
 		$result = array();
+		$r_key = 0;
 		foreach($this->RouteArray as $key=>$value){
 			$this->RouteList[$value['routename']]=$key;
 			if($r_key) continue;
@@ -110,7 +111,6 @@ class FN_tools_route implements FN__single{
 			$r_key = $key+1;//匹对成功
 			if(empty($param_arr_tmp)) continue;
 			$index = 1;//正则匹对索引1开始
-			$length = 0;
 			$count = count($value_arr_tmp);
 			foreach($param_arr_tmp[1] as $k=>$v){
 				$length = $value_arr_tmp[$index][1] + strlen($value_arr_tmp[$index][0]);
@@ -118,9 +118,10 @@ class FN_tools_route implements FN__single{
 				if(!empty($value['extend'][$v]) && is_array($value['extend'][$v])){
 					$function = $value['extend'][$v][1];
 					if(empty($value['extend'][$v][2])){
-						$result[$v] = call_user_func($value['extend'][$v][1],$result[$v]);
+						$result[$v] = call_user_func(array($this,$function),$result[$v]);
 					}else{
-						$result[$v] = call_user_func_array($value['extend'][$v][1],array_merge(array($result[$v]),$value['extend'][$v][2]));
+						array_unshift($value['extend'][$v][2],$result[$v]);
+						$result[$v] = call_user_func_array(array($this,$function),$value['extend'][$v][2]);
 					}
 				}
 				//去除为空数据导致的false判断，以至于default数据无法生效

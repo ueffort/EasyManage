@@ -4,7 +4,7 @@ class FN_tools_ajax implements FN__single{
 	private $array = array();
 	private $classArray = array();
 	private $domain = null;
-	static public function getInstance($array = array()){
+	static public function getInstance($array){
 		if(!self::$_Instance){
 			self::$_Instance = new self();
 		}

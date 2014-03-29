@@ -28,7 +28,7 @@ class FN_layer_gridfs implements FN__single{
 	protected $_prefix=null;//数据集前缀，这个和sql里面的prefix不同，Gridfs没有table选项
 	protected $_domain='domain';//文档命名空间字段
 	protected $_autoid='autoid';//文档自增长字段
-	static public function getInstance($array = array()){
+	static public function getInstance($array){
 		$class = get_called_class();
 		return new $class();
 	}
@@ -78,7 +78,7 @@ class FN_layer_gridfs implements FN__single{
 		$other[$this->_autoid] = (string)$autoid;
 		if(!empty($other['filename'])) $other['originalname'] = $other['filename'];
 		$other['filename'] = $this->createFileName($other);
-		if(empty($other['contentType'])) $other['contentType'] = $this->_parseContentType($file,2);
+		if(empty($other['contentType'])) $other['contentType'] = $this->_parseContentType($bytes,2);
 		if(!$other['contentType']){
 			$this->_error = 3;//文件类型未定义
 			return false;

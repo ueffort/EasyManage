@@ -8,7 +8,7 @@ class FN_layer_api_restcache_server implements FN__single{
 	private $array = array();
 	private $error = false;
 	//每次都获取到同一个类
-	static public function getInstance($array = array()){
+	static public function getInstance($array){
         if(!self::$_Instance){
             self::$_Instance = new self();
         }

@@ -21,11 +21,11 @@ class FN_layer_sql implements FN__single{
 	protected $_link='default';//数据库映射名。默认是default
 	protected $_dbname=null;//数据库名
 	protected $_table=null;//数据表名
-	protected $_pkey = false;//主键字段
 	protected $_field = array();//字段数组
+	protected $_pkey = false;//主键字段
 	protected $_aint = true;//主键是否自增长
 	protected $_alias = null;//别名，用来自动连表等操作
-	static public function getInstance($array=array()){
+	static public function getInstance(){
 		$class = get_called_class();
 		return new $class();
 	}
@@ -573,7 +573,7 @@ class FN_layer_sql implements FN__single{
 		}
 	}
 	public function getError(){
-		return $thsi->_error();
+		return $this->_error();
 	}
 	/*继承该ArrayAccess接口的函数
 	//是否存在某个下标、索引或者键值都是一个东西

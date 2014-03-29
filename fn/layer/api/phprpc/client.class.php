@@ -325,7 +325,7 @@ class _PHPRPC_Client {
             return new PHPRPC_Error($errno, $errstr);
         }
         stream_set_write_buffer($this->_socket, 0);
-        socket_set_timeout($this->_socket, $this->_timeout);
+        socket_set_timeout($this->_socket, $this->_timeout,0);
         return true;
     }
 
@@ -581,7 +581,7 @@ else {
     }
 }
 class FN_layer_api_phprpc_client extends PHPRPC_Client implements FN__auto{
-	public function __construct($array=array()){
+	public function __construct($array){
 		parent::PHPRPC_Client();
 	}
 }

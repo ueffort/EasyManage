@@ -47,7 +47,7 @@ class FN_tools_combine{
 		$pos = strpos("??",$_SERVER['REQUEST_URI']);
 		if($pos!==false){
 			$file_string = substr($_SERVER['REQUEST_URI'],$pos+2);
-			$_tmp = explode(',',$split_a[1]);
+			$_tmp = explode(',',$file_string);
 			foreach($_tmp as $v){
 				$files[] = $prefix.$v;
 			}
@@ -84,7 +84,7 @@ class FN_tools_combine{
 			header('Last-Modified: '.gmdate('D, d M Y H:i:s', $last_modified_time.' GMT'), true, 304);
 			exit;
 		} 
-		if($MINIFY){
+		if(self::$_Minify){
 			$class = XG::T('optimize.combine.'.$type);
 		}
 		// 拼接文件，并应用通用规则
@@ -97,7 +97,7 @@ class FN_tools_combine{
 			$in_str = file_get_contents($k);
 			if($in_str===false){
 				$unfound[] = $k;
-			}elseif($MINIFY){
+			}elseif(self::$_Minify){
 				//$R_files[] = $class::minify($in_str);
 				$R_files[] = call_user_func_array(array($class,'minify'),array($in_str));
 			}else{
@@ -120,7 +120,7 @@ class FN_tools_combine{
 		echo "\n*/";
 	}
 	static public function getExtend($filename){
-		$extend =explode("." , $file_name);
+		$extend =explode("." , $filename);
 		$va=count($extend)-1;
 		return $extend[$va];
 	}

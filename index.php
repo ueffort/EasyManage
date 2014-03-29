@@ -17,8 +17,7 @@ $route->route('main',array(
 $route->route('manage',array(
 	'rule'=>':type:controller.:action.:op:param',
 	'class'=>'controller.$type.$controller|$op',
-	'extend'=>array('controller'=>array('(\.\w+)*',array('self','parseSlice'),array(1)),'op'=>'(view|handle)','param'=>array('(\/\w+)*',array('self','parseParam'),array('/')))
+	'extend'=>array('controller'=>array('(\.\w+)*','parseSlice',array(1)),'op'=>'(view|handle)','param'=>array('(\/\w+)*','parseParam',array('/')))
 	)
 );
 $route->run();
-?>

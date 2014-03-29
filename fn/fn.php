@@ -35,32 +35,48 @@ class FN{
 	private static $_FileSpace = array();
 	private static $_InitProject = false;
 	private static $_Instance = null;
+	private static $_NowCloud = false;
 	private static $_Frame = null;
 	//存储自身映射关系，用作全局对象管理
-	protected static $_Map = array();
-	protected static $_Server = array();
+	private static $_Map = array();
+	private static $_Server = array();
+	private static $_Platform = array();
 	private function __clone() {}
 	private function __construct() {}
 	/**
 	 * 初始化项目
 	 * 传递项目路径或默认为入口文件所在文件路径
 	 * 项目全局只能初始化一次
-	 * @param string $project  项目名称
 	 * @param string $path 项目所在路径，如果不设置，默认为项目入口文件所在路径
+	 * @return void
 	 */
 	static public function initProject($path = ''){
 		if(self::$_InitProject) return true;
 		define('FN_PROJECT_PATH',$path ? $path : FN_SYSTEM_PATH);//项目路径
-		//初始化云服务
 		$cloud = self::getConfig('cloud');
-		if(isset($cloud['platform'])) self::$_Instance = self::F('cloud.'.$cloud['platform']);
-		if(!self::$_Instance) self::$_Instance = self::getFrame();
+		self::$_NowCloud = $cloud ? $cloud : false;//保存云设置
+		self::$_Instance = self::getFrame();//初始化框架单例
 		self::$_InitProject = true;
 	}
+	static public function getNowCloud(){
+		return self::$_NowCloud;
+	}
 	/**
-	 * 获取基础服务:任何可由其他计算机单独完成的任务
+	 * 获取服务对应平台(云平台是平台的一种，项目初始化可以预先设置当前的云平台)，实现全局单例模式，无需内部单例化
+	 * @param string $platform  对应平台名称
+	 */
+	static public function getPlatform($platform){
+		if($platform == 'cloud') $platform = self::$_NowCloud;
+		if(!isset(self::$_Platform[$platform])){
+			self::$_Platform[$platform] = self::F('platform.'.$platform,self::getConfig('platform/'.$platform));
+		}
+		return self::$_Platform[$platform];
+	}
+	/**
+	 * 获取基础服务:任何可由其他计算机单独完成的任务，实现全局单例模式，无需内部单例化
 	 * @param string $servername  调用的服务名称
-	 * @param string $servername  映射名称，默认为default
+	 * @param string $link  映射名称，默认为default
+	 * @return class 服务实例
 	 */
 	static public function server($servername,$link='default'){
 		if(!isset(self::$_Server[$servername][$link])){
@@ -68,36 +84,60 @@ class FN{
 			//将服务与实际驱动分割，实现控制管理
 			$config['drive'] = empty($config['drive'])?$servername : $config['drive'];
 			if(empty(self::$_Server[$servername])) self::$_Server[$servername] = array();
-			self::$_Server[$servername][$link] = self::getInstance()->_server($servername,$config);
+			self::$_Server[$servername][$link] = self::_server($servername,$config);
 		}
 		return self::$_Server[$servername][$link];
 	}
-	protected function _server($servername,$config){
-		switch($config['drive']){
-			case 'memcache'://cache
-				$class = new Memcache();
-				$class->connect($config['host'], $config['port']) or die ("Could not connect");
-				return $class;
-			case 'mongodb':
-				if (class_exists("MongoClient")) {
-					$class = 'MongoClient';
-				} else {
-					$class = 'Mongo';
-				}
-				$options = array();
-				if(!empty($config['user']) && !empty($config['pass'])){
-					$options = array('username'=>$config['user'],'password'=>$config['pass']);
-				}
-				$class = new $class("mongodb://".$config['host'].":".$config['port'],$options);
-				return $class;
+	/**
+	 * 获取基础服务,云服务需自行判断是否支持外部云调用方式（API接口）
+	 * @param string $servername  调用的服务名称
+	 * @param string $config  映射名称，默认为default
+	 * @return class 服务实例
+	 */
+	static private function _server($servername,$config){
+		if(isset($config['platform'])){
+			$return = self::getPlatform($config['platform'])->server($servername,$config);
+			if($return) return $return;
 		}
-		$class_name = self::F('server.'.$servername.($servername == $config['drive'] ? '' : '.'.$config['drive']));
+		switch($servername){
+			case 'database':
+				switch($config['drive']){
+					case 'memcache'://cache
+						$class = new Memcache();
+						$class->connect($config['host'], $config['port']) or die ("Could not connect");
+						return $class;
+					case 'mongodb':
+						if (class_exists("MongoClient")) {
+							$class = 'MongoClient';
+						} else {
+							$class = 'Mongo';
+						}
+						$options = array();
+						if(isset($config['user']) && isset($config['pass'])){
+							$options['username'] = $config['user'];
+							$options['password'] = $config['pass'];
+						}
+						$class = new $class("mongodb://".$config['host'].":".$config['port'],$options);
+						if(isset($config['dbname'])){
+							$class->selectDB($config['dbname']);
+						}
+						return $class;
+					case 'redis':
+						$class = new Redis();
+						$class->connect($config['host'], $config['port']);
+						if(isset($config['pass'])) $class->auth($config['pass']);
+						return $class;
+				}
+				break;
+		}
+		$class_name = self::F('server.'.$servername.($config['drive'] ?  '.'.$config['drive'] : '' ));
 		return call_user_func_array(array($class_name,'initServer'),array($config));
 	}
 	/**
 	 * 获取基础服务的配置信息，方便内部高阶服务调用基础配置
 	 * @param string $servername  调用的服务名称
-	 * @param string $servername  映射名称，默认为default
+	 * @param string $link  映射名称，默认为default
+	 * @return array
 	 */
 	static public function serverConfig($servername,$link='default'){
 		return self::getConfig($servername.'/'.$link);
@@ -144,39 +184,52 @@ class FN{
 	 * 项目扩展类调用
 	 * 以项目目录为调用目录结构tools.controller.view  =>  FN_PROJECT_PATH/tools/controller/view  =>  tools_controller_view
 	 */
-	static public function i($class,$array=array()){
+	static public function i(){
 		if(!self::$_InitProject) return true;
-		return self::C(FN_PROJECT_PATH,$class,$array);
+		//return self::C($class,$array);
+		$arg = func_get_args();
+		return call_user_func_array(array(self::getFrame(),'C'),$arg);
 	}
 	/**
 	 * 框架类调用
 	 * 以工具目录为调用目录结构controller.view  =>  FN_FRAME_PATH/controller/view  =>  FN_tools_view
 	 */
-	static public function F($class,$array=array()){
-		return self::C(FN_FRAME_PATH,FN_FRAME_PREFIX.'.'.$class,$array,FN_FRAME_PREFIX);
+	static public function F(){
+		//return self::C(FN_FRAME_PREFIX.'.'.$class,$array);
+		$arg = func_get_args();
+		$arg[0] = FN_FRAME_PREFIX.'.'.$arg[0];
+		return call_user_func_array(array(self::getFrame(),'C'),$arg);
 	}
 	/**
 	 * 统一类文件调用
 	 */
-	static private function C($class_path,$name,$array,$domain_path=false){
-		list($class_name,$fname,$path) = self::parseName($name);
+	static private function C(){
+		$array = func_get_args();
+		$name = array_shift($array);
+		if(count($array)==0) $array = array(array());
+		list($class_name,$shortname,$path) = self::parseName($name);
 		//开启自动加载类，减少调用
 		if(!class_exists($class_name)){
 			return false;
 		}
-		//if(!self::loadFile($fname.FN_FRAME_SUFFIX,$class_path.($domain_path ? substr($path,strlen($domain_path)+1) : $path))) return false;
 		$Reflection = new ReflectionClass($class_name);
 		$interface = $Reflection->getInterfaceNames();
 		if(empty($interface)){
 			//直接跳过下列判断
-		}elseif(in_array('FN__single',$interface)){//定义single接口,object instanceof class,parents class,interface
-			//return $class_name::getInstance($array);
-			return call_user_func_array(array($class_name,'getInstance'),array($array));
 		}elseif(in_array('FN__factor',$interface)){//定义factor接口
 			//return $class_name::factor($array);
-			return call_user_func_array(array($class_name,'factor'),array($array));
+			return call_user_func_array(array($class_name,'factor'),$array);
 		}elseif(in_array('FN__auto',$interface)){//定义auto接口
-			return new $class_name($array);
+			//return new $class_name($array);
+			$arrayString = $return = '';
+			foreach($array as $key=>$value){
+				$arrayString .= '$array['.$key.'],';
+			}
+			eval('$return = new $class_name('.substr ( $arrayString, 0, strlen ( $arrayString ) - 1 ).');');
+			return $return;
+		}elseif(in_array('FN__single',$interface)){//定义single接口,object instanceof class,parents class,interface
+			//return $class_name::getInstance($array);
+			return call_user_func_array(array($class_name,'getInstance'),$array);
 		}
 		return $class_name;
 	}
@@ -256,8 +309,8 @@ class FN{
 		if(!empty($path)) substr($path, -1) != '/' && $path .= "/";
 		$file = $path.$file;
 		if(isset(self::$_FileSpace[$file])) return true;
-		if(file_exists($file)) {
-			@include $file;
+		if(file_exists($file) && !is_dir($file)) {
+			include_once ($file);
 			return self::$_FileSpace[$file] = true;
 		}else {
 			return false;
@@ -286,13 +339,14 @@ class FN{
 			case '@':return FN_WEB_PATH.substr($dir,1);//当前访问的web路径
 			case '#':return FN_SYSTEM_PATH.substr($dir,1);//当前执行脚本所在的路径（可以当项目的访问路径）
 			case '$':return FN_PROJECT_PATH.substr($dir,1);//项目的路径
-			default:return $dir;
+			default:return self::$_NowCloud ? self::getPlatform(self::$_NowCloud)->parsePath($dir,$Symbol) : $dir;//扩展当前云平台的路径解析
 		}
 	}
 	/**
 	 * 根据字符串，返回类名，类文件名，类所在相对路径
 	 * @param string $name
 	 * @param string $Symbol
+	 * @return array [classname,shortname,path] [完整类名,简短类名（目录实际名）,路径]
 	 * 格式：prefix:class|child，prefix和child不参与路径和文件名操作
 	 * class及prefix均用 . 进行命名分割
 	 * class的分割还涉及到文件名及文件路径的判断
@@ -300,7 +354,7 @@ class FN{
 	 * prefix用于实现设置类前缀，避免命名冲突
 	 */
 	static public function parseName($name,$Symbol='_'){
-		$fname = $path = $child = $name_extend = '';
+		$child = '';
 		//一个类文件中多个类
 		$pos = strrpos($name,'|');
 		if($pos !== FALSE){
@@ -308,16 +362,10 @@ class FN{
 			$name = substr($name,0,$pos);
 		}
 		$name = str_replace('.',$Symbol,$name);
-		//不按名称设置调用路径
-		$pos = strpos($name,':');
-		if($pos !== FALSE){
-			$name_extend = substr($name,0,$pos).$Symbol;
-			$name = substr($name,$pos+1);
-		}
 		$pos = strrpos($name,$Symbol);
-		$fname = substr($name,$pos+1);
+		$shortname = substr($name,$pos+1);
 		$path = str_replace($Symbol,'/',substr($name,0,$pos+1));
-		return array($name_extend.$name.$child,$fname,$path);
+		return array($name.$child,$shortname,$path);
 	}
 	private function _getConfig($string=''){
 		$config = $this->config;
@@ -343,28 +391,29 @@ class FN{
 //基本接口，适用于单例模式
 interface FN__single{
 	/**
-	 * 初始化
-	*
-	* @access  public
-	*
-	* @return Object
-	*/
-	static public function getInstance($array=array());
+	 * 获取单例 getInstance
+	 *
+	 * @access  public static
+	 * @return Object
+	 */
 }
 //工厂接口，适用于工厂模式
 interface FN__factor{
 	/**
-	 * 执行工厂
-	*
-	* @access  public
-	*
-	* @return Object
-	*/
-	static public function factor($array);
+	 * 执行工厂getFactor
+	 *
+	 * @access  public static
+	 * @return Object
+	 */
 }
 //基本接口，类自动返回new对象
 interface FN__auto{
-	public function __construct($array=array());
+	/**
+	 * 自动实例化new
+	 *
+	 * @access  public
+	 * @return Object
+	 */
 }
 define('SET_MAGIC_QUOTES_GPC',get_magic_quotes_gpc());
 define('TIME_BASE',time());
@@ -459,6 +508,7 @@ class FNbase{
 		preg_match("@<span>(.*)</span></p>@iU",$result,$ipArray);
 		return $ipArray[1];
 	}
+	//返回当前的完整请求
 	static public function getRequestUri(){
 		if (!self::$_RequestUri){
 			if (isset($_SERVER['HTTP_X_REWRITE_URL'])){
@@ -478,6 +528,7 @@ class FNbase{
 		self::$_RequestUri = $requestUri;
 		self::$_Baseuri = null;
 	}
+	//返回当前请求的基本路径（去除请求文件名及参数）
 	static public function getBaseUri(){
 		if (self::$_Baseuri) return self::$_Baseuri;
 		$filename = basename($_SERVER['SCRIPT_FILENAME']);
@@ -665,6 +716,31 @@ class FNbase{
 		}
 	}
 }
+//服务平台抽象类类
+class FN_platform implements FN__auto{
+	protected $PlatformSelf = null;
+    private $config = null;
+    public function __construct($config){
+        $this->config = $config;
+    }
+	/**
+	 * 判断当前云环境是否是当前云服务
+	 * 用于云服务的参数设置和获取，需实例化子类自身访问
+	 * @return string
+	 */
+	protected function isCloudSelf(){
+		return FN::getNowCloud() == $this->PlatformSelf;
+	}
+	/*
+	 * 代理服务接口，转为全局类接口
+	 */
+	public function server($servername,&$config){
+		
+	}
+	public function parsePath($dir,$Symbol){
+		return $dir;
+	}
+}
 if(!function_exists('get_called_class')) {
 class class_tools{
 	private static $i = 0;
@@ -687,6 +763,11 @@ class class_tools{
 					return $toret[0];
 				}
 			}
+		}
+		//BUG修正，复杂环境直接多一层判断
+		if(array_key_exists("object",$bt[2]) && array_key_exists("class",$bt[2])){
+			if ( $bt[2]['object'] instanceof $bt[2]['class'] )
+				return get_class( $bt[2]['object'] );
 		}
 		//使用正常途径调用类方法，如:A::make()
 		if(self::$fl == $bt[2]['file'].$bt[2]['line']) {

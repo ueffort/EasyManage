@@ -13,7 +13,7 @@ class FN_layer_api_restcache_client implements FN__single{
 	protected $debug = false;
 	protected $type = null;
 	protected $freq = 5;//默认缓存5分钟
-	static function getInstance($array=array()){
+	static function getInstance($array){
 		if(empty(self::$_Instance)){
 			if(!empty($array['proxy'])){
 				self::$_Instance = FN::F('layer.api.restcache.proxy');

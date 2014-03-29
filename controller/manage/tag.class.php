@@ -13,12 +13,12 @@ class controller_manage_tagview extends tools_controller_manageview{
 			$other = array();
 			$grid = array();
 			$toolbar = array(
-				array('view'=>'manage.tag.add','icon'=>'add','window'=>true),
-				array('view'=>'manage.tag.edit','icon'=>'modify','param'=>array('id'),'window'=>true),
-				array('handle'=>'manage.tag.move','icon'=>'up','child'=>'up','param'=>array('id')),
-				array('handle'=>'manage.tag.move','icon'=>'down','child'=>'down','param'=>array('id')),
+				array('view'=>'manage.tag.list.add','icon'=>'add','window'=>true),
+				array('view'=>'manage.tag.list.edit','icon'=>'modify','param'=>array('id'),'window'=>true),
+				array('handle'=>'manage.tag.list.move','icon'=>'up','child'=>'up','param'=>array('id')),
+				array('handle'=>'manage.tag.list.move','icon'=>'down','child'=>'down','param'=>array('id')),
 				//array('view'=>'manage.devolve.index','icon'=>'modify','data'=>array('type'=>4),'window'=>true),
-				array('handle'=>'manage.tag.delete','icon'=>'delete','confirm'=>'确定删除该设置？','param'=>array('id'),'batch'=>'true'),
+				array('handle'=>'manage.tag.list.delete','icon'=>'delete','confirm'=>'确定删除该设置？','param'=>array('id'),'batch'=>'true'),
 			);
 			$this->_toolbar($toolbar,$grid);
 			$array = array(0=>123123,1=>12312312,2=>123123232321);
@@ -27,7 +27,7 @@ class controller_manage_tagview extends tools_controller_manageview{
 			);
 			$data = array();
 			$this->_search($data,$field,$list);
-			$dblclick = array('param'=>array('id'),'view'=>'manage.tag.edit','window'=>true);
+			$dblclick = array('param'=>array('id'),'view'=>'manage.tag.list.edit','window'=>true);
 			$this->_dblclick($dblclick,$list);
 			$field = array(
 				array('name'=>'id','display'=>'序号','type'=>'hidden'),
@@ -55,7 +55,7 @@ class controller_manage_tagview extends tools_controller_manageview{
 			array('name'=>'description','display'=>'标签描述','type'=>'textarea'),
 		);
 		$other = array();
-		return $this->_form(array(),$field,array('handle'=>'manage.tag.add'),$other);
+		return $this->_form(array(),$field,array('handle'=>'manage.tag.list.add'),$other);
 	}
 	public function edit(){
 		$tag = FN::i('module.tag');
@@ -71,7 +71,7 @@ class controller_manage_tagview extends tools_controller_manageview{
 			array('name'=>'description','display'=>'标签描述','type'=>'textarea'),
 		);
 		$other = array();
-		return $this->_form($data,$field,array('handle'=>'manage.tag.update'),$other);
+		return $this->_form($data,$field,array('handle'=>'manage.tag.list.update'),$other);
 	}
 }
 class controller_manage_taghandle extends tools_controller_managehandle{

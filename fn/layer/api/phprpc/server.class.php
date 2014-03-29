@@ -497,7 +497,7 @@ PHPRPC_Server::initSession();
 class FN_layer_api_phprpc_server extends PHPRPC_Server implements FN__single{
 	private static $_Instance = null;
 	//每次都获取到同一个类
-	static public function getInstance($array = array()){
+	static public function getInstance($config){
         if(!self::$_Instance){
             self::$_Instance = new self();
         }

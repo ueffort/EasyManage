@@ -12,25 +12,25 @@
 */
 class FN_tools_validate implements FN__single{
 	static private $_Instance = null;
-	static public function getInstance($array = array()){
+	static public function getInstance(){
 		if(!self::$_Instance){
 			self::$_Instance = new self();
 		}
 		return self::$_Instance;
 	}
-	public function valid($array,$valid){
+	public function valid($array,$valid,$message=array()){
 		if(empty($valid)){
 			return false;
 		}
 		$list = array();
 		foreach($valid as $key=>$rule){
 			$element = isset($array[$key]) ? $array[$key] : false;
-			$return = $this->validRule($element,$rule);
+			$return = $this->validRule($element,$rule,isset($message[$key]) ? $message[$key] : array());
 			if($return !== true) $list[$key] = $return;
 		}
 		return $list;
 	}
-	public function validRule($element,$rule){
+	public function validRule($element,$rule,$message=array()){
 		if(!is_array($rule)) $rule = array($rule=>true);
 		foreach($rule as $key=>$value){
 			$fun = '__'.$key;
@@ -40,9 +40,11 @@ class FN_tools_validate implements FN__single{
 			}elseif(!is_array($value)){
 				$value = array($value);
 			}
+			//传递所有规则为参数，用于联合参数判断
+			$value[] = $rule;
 			array_unshift($value,$element);
 			if(!call_user_func_array(array(&$this,$fun),$value)){
-				return $key;
+				return is_array($message) ? (isset($message[$key]) ? $message[$key] : $key) : $message;
 			}
 		}
 		return true;
@@ -60,19 +62,23 @@ class FN_tools_validate implements FN__single{
 	private function __chinese($element){
 		return $this->__regular($element,'/^[\x{4e00}-\x{9fa5}]+$/u');
 	}
-	//判断是否属于该数组,isnull为是否可以为空，默认为可以
-	private function __single($element,$array,$isnull=true){
-		if(empty($element)) return $isnull;
+	//判断是否属于该数组
+	private function __single($element,$array,$allrule){
+		if(empty($element)) return isset($allrule['required']) ? $allrule['required'] : false;
 		return in_array($array,$element) ? true : false;
 	}
 	//判断多选是否都属于该数组,element必须为数组
-	private function __multiple($element,$array,$isnull=true){
-		if(empty($element)) return $isnull;
+	private function __multiple($element,$array,$allrule){
+		if(empty($element)) return isset($allrule['required']) ? $allrule['required'] : false;
 		if(!is_array($element)) return false;
 		foreach($element as $key=>$value){
-			if(!$this->__single($value,$array)) return false;
+			if(!$this->__single($value,$array,$allrule)) return false;
 		}
 		return true;
+	}
+	//判断2个值是否相同,无需像js中实现动态字段判断，因为php是服务器端操作
+	private function __equals($element,$target){
+		return $element == $target ? true : false;
 	}
 	//判断是否为数字，type只判断是否正负，结果都包括0，排除0可用required
 	private function __num($element,$type='',$regular=''){
